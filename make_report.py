@@ -1,6 +1,6 @@
 """Build the HW1 report with the unmodified official NeurIPS 2025 style.
 
-Requires measured artifacts in results/, matplotlib, and Tectonic. The LaTeX
+Requires measured artifacts in results/, Pillow, and Tectonic. The LaTeX
 source is chest_xray_vae_report.tex. No experiment is rerun by this script.
 """
 
