@@ -1,0 +1,10 @@
+{
+  "fid_1000_ignite": 0.1771436870130049,
+  "inception_score": 1.7791648601369754,
+  "num_generated": 256,
+  "num_real_test": 256,
+  "test_total": 624,
+  "seed": 286,
+  "inception_features": "ImageNet Inception-v3 1000-class probabilities",
+  "inception_preprocess": "grayscale repeated to RGB; bilinear 299x299; [-1,1]"
+}

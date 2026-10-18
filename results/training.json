@@ -1,0 +1,21 @@
+{
+  "data": "data/chest_xray",
+  "output": "results",
+  "epochs": 20,
+  "batch_size": 64,
+  "latent_dim": 32,
+  "lr": 0.001,
+  "beta": 1.0,
+  "val_fraction": 0.1,
+  "seed": 285,
+  "threads": 4,
+  "device": "auto",
+  "no_cache": false,
+  "dataset_root": "data/chest_xray",
+  "train_count": 4694,
+  "val_count": 522,
+  "device_used": "cpu",
+  "best_val_elbo": 2388.1038224377394,
+  "elapsed_seconds": 167.43344712257385,
+  "parameter_count": 543649
+}

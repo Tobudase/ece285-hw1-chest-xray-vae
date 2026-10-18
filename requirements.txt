@@ -4,4 +4,3 @@ pytorch-ignite==0.5.3
 scipy==1.14.1
 numpy
 Pillow
-reportlab==4.4.9
