@@ -6,6 +6,7 @@
 \usepackage[preprint,nonatbib]{neurips_2025}
 \usepackage{graphicx}
 \usepackage{url}
+\urlstyle{same}
 
 \title{Generating Chest Radiographs with a Convolutional Variational Autoencoder}
 \author{ECE 285 Homework 1}
@@ -14,9 +15,10 @@
 \maketitle
 
 \begin{abstract}
-We train one convolutional variational autoencoder (VAE) on the complete Chest
-X-Ray Images (Pneumonia) training set and draw unconditional samples from its
-Gaussian prior. We report training behavior, example radiographs, Inception
+We train one convolutional variational autoencoder (VAE) on the Chest X-Ray
+Images (Pneumonia) training split after reserving a stratified validation
+subset, then draw unconditional samples from its Gaussian prior. We report
+training behavior, example radiographs, Inception
 Score (IS), and an explicitly identified 1000-feature Fr\'echet Inception
 Distance (FID-1000). The generated images capture coarse chest structure but
 blur fine anatomy; these natural-image metrics do not establish diagnostic
@@ -89,6 +91,9 @@ The training set is class-imbalanced; this unconditional model cannot select
 pathology. IS and FID-1000 describe only this specific 256-sample experiment,
 not clinical realism or diagnostic performance. Higher resolution and
 radiology-specific evaluation would be useful next steps.
+
+\noindent\textbf{Code and reproducibility:}
+\url{https://github.com/Tobudase/ece285-hw1-chest-xray-vae}.
 
 \small
 \begin{thebibliography}{4}

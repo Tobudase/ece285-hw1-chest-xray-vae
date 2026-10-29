@@ -19,6 +19,7 @@ def main():
     with zipfile.ZipFile(args.archive) as archive:
         names = archive.namelist()
         prefixes = set()
+        # Some releases nest duplicate copies; choose one complete train tree.
         for name in names:
             parts = PurePosixPath(name).parts
             for i in range(len(parts) - 2):
@@ -28,6 +29,7 @@ def main():
             raise RuntimeError("Could not find a chest_xray/train directory in archive")
         prefix = min(prefixes, key=lambda x: (len(x), x))
         counts = collections.Counter()
+        # Extract image files only from the chosen train/test tree.
         for name in names:
             parts = PurePosixPath(name).parts
             if parts[:len(prefix)] != prefix:

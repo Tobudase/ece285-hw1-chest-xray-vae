@@ -33,6 +33,7 @@ def split_indices(dataset, fraction, seed):
 
 
 def pass_epoch(model, loader, optimizer, device, beta):
+    """Run one training or validation pass and return per-image mean losses."""
     train = optimizer is not None
     model.train(train)
     totals = torch.zeros(3, dtype=torch.float64)
@@ -83,6 +84,7 @@ def main():
     dataset = image_folder(root, "train")
     train_ids, val_ids = split_indices(dataset, args.val_fraction, args.seed)
     if not args.no_cache:
+        # Resize each image once instead of decoding it again every epoch.
         print(f"decoding {len(dataset)} images into an 85 MB in-memory cache", flush=True)
         images = torch.empty((len(dataset), 1, 64, 64), dtype=torch.float32)
         labels = torch.empty(len(dataset), dtype=torch.long)
@@ -97,6 +99,7 @@ def main():
                             shuffle=False, num_workers=0)
     model = ChestVAE(args.latent_dim).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    # Reuse latent draws so sample grids are comparable across epochs.
     fixed_generator = torch.Generator(device=device).manual_seed(args.seed + 1)
     fixed_z = torch.randn(16, args.latent_dim, generator=fixed_generator, device=device)
     history = []
@@ -113,6 +116,7 @@ def main():
             writer = csv.DictWriter(f, fieldnames=row.keys())
             writer.writeheader()
             writer.writerows(history)
+        # Select the checkpoint using validation loss only.
         if va[2] < best:
             best = va[2]
             torch.save({"model": model.state_dict(), "latent_dim": args.latent_dim,

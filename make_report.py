@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent
 
 
 def build_loss_plot(history: list[dict[str, str]], output: Path) -> None:
+    """Draw the measured training and validation losses for the report."""
     epochs = [int(row["epoch"]) for row in history]
     train = [float(row["train_elbo"]) for row in history]
     val = [float(row["val_elbo"]) for row in history]
@@ -76,6 +77,7 @@ def main() -> None:
     evaluation = json.loads((results / "evaluation.json").read_text())
     with (results / "history.csv").open(newline="") as stream:
         history = list(csv.DictReader(stream))
+    # Keep this fixed report tied to the measured run and its printed values.
     if len(history) != 20:
         raise ValueError("The report describes the measured 20-epoch run")
     if abs(training["best_val_elbo"] - 2388.1038224377394) > 0.005:
@@ -97,6 +99,7 @@ def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env.setdefault("TECTONIC_CACHE_DIR", str(ROOT / "tmp/tectonic-cache"))
+    # Compile the existing LaTeX source with the local NeurIPS style file.
     subprocess.run([tectonic, "--outdir", str(output.parent),
                     str(ROOT / "chest_xray_vae_report.tex")],
                    cwd=ROOT, env=env, check=True)

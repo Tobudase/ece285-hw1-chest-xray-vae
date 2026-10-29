@@ -21,6 +21,7 @@ from vae import ChestVAE
 
 
 def inception_input(x):
+    """Convert grayscale [0, 1] images to Inception's three-channel input."""
     # Ignite's Inception wrapper uses torchvision's transform_input=True,
     # which expects images in [-1, 1] before its channel-wise transform.
     return F.interpolate(x.repeat(1, 3, 1, 1) * 2 - 1,
@@ -58,6 +59,8 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     generator = torch.Generator().manual_seed(args.seed)
     inception = InceptionModel(return_features=False, device="cpu").eval()
+    # Inception already returns probabilities; Identity prevents re-extraction.
+    # FID here uses 1000 class probabilities, not pool3 features.
     fid = FID(num_features=1000, feature_extractor=nn.Identity())
     inception_score = InceptionScore(num_features=1000, feature_extractor=nn.Identity())
     fid.reset()
@@ -66,6 +69,7 @@ def main():
     real_preview = []
     with torch.no_grad():
         for real, _ in loader:
+            # Prior samples never use the held-out test images as input.
             generated = model.sample(real.size(0), torch.device("cpu"), generator=generator)
             real_probs = inception(inception_input(real))
             gen_probs = inception(inception_input(generated))
