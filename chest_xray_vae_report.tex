@@ -13,6 +13,7 @@
 
 \begin{document}
 \maketitle
+\suppressfloats[t]
 
 \begin{abstract}
 We train one convolutional variational autoencoder (VAE) on the Chest X-Ray
@@ -44,36 +45,34 @@ At generation time, $z\sim\mathcal N(0,I)$; no test image is supplied.
 \section{Training}
 We train with Adam (learning rate $10^{-3}$), batch size 64, for 20 epochs on
 CPU. The checkpoint is selected by minimum validation negative ELBO. The test
-split does not enter training or checkpoint selection. At epoch 20, the best
-validation loss is 2,388.10 nats/image (reconstruction 2,365.96; KL 22.14);
-the final training loss is 2,397.53. Figure~\ref{fig:loss} shows the loss
-trend.
+split does not enter training or checkpoint selection. Figure~\ref{fig:loss}
+shows convergence; Table~\ref{tab:results} breaks down the selected epoch-20
+losses.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.86\linewidth]{results/loss_curve.png}
+  \includegraphics[width=0.70\linewidth]{results/loss_curve.png}
   \caption{Mean negative ELBO in nats/image on training and validation splits;
   lower is better. The selected checkpoint is epoch 20.}
   \label{fig:loss}
 \end{figure}
 
 \section{Generative evaluation}
-We compare 256 independent prior samples with 256 randomly chosen official
-test images. For Ignite's IS and FID implementation~\cite{ignite}, each
-grayscale image is repeated to RGB, resized to $299\times299$, and evaluated
-by ImageNet-pretrained Inception-v3. The scores are IS $=1.779$ and
-FID-1000 $=0.177$. FID-1000 uses the model's 1000-class probabilities as
-features, as in the cited Ignite tutorial; it is not comparable to the usual
-pool3/2048-feature FID~\cite{heusel}. The sample count is small, and an
-ImageNet classifier is not calibrated to radiographic anatomy.
+We compare independent prior samples with randomly chosen official test images
+(seed 286). For Ignite's IS and FID implementation~\cite{ignite}, each
+grayscale image is repeated to RGB, resized to $299\times299$, scaled to
+$[-1,1]$, and evaluated by ImageNet-pretrained Inception-v3. Table~\ref{tab:results}
+gives scores and sample counts. FID-1000 uses the model's 1000-class
+probabilities as features, as in the cited Ignite tutorial; it is not
+comparable to the usual pool3/2048-feature FID~\cite{heusel}.
 
 \begin{figure}[t]
   \centering
-  \begin{minipage}{0.42\linewidth}
+  \begin{minipage}{0.35\linewidth}
     \centering\includegraphics[width=\linewidth]{results/generated_grid.png}
     \centerline{(a) Prior samples}
   \end{minipage}\hfill
-  \begin{minipage}{0.42\linewidth}
+  \begin{minipage}{0.35\linewidth}
     \centering\includegraphics[width=\linewidth]{results/real_grid.png}
     \centerline{(b) Held-out test images}
   \end{minipage}
@@ -83,13 +82,34 @@ ImageNet classifier is not calibrated to radiographic anatomy.
   \label{fig:examples}
 \end{figure}
 
+\begin{table}[!t]
+  \centering\small
+  \caption{Measured results at the selected epoch 20. Losses are per image;
+  ``gen/test'' denotes generated and held-out images.}
+  \label{tab:results}
+  \begin{tabular}{lrr}
+    \hline
+    Loss (nats/image) & Training & Validation \\
+    \hline
+    Reconstruction BCE & 2,375.02 & 2,365.96 \\
+    KL divergence & 22.50 & 22.14 \\
+    Negative ELBO & 2,397.53 & 2,388.10 \\
+    \hline
+    Generative metric & Score & Images (gen/test) \\
+    \hline
+    IS & 1.779 & 256 / -- \\
+    FID-1000 & 0.177 & 256 / 256 \\
+    \hline
+  \end{tabular}
+\end{table}
+
 \section{Discussion}
 Figure~\ref{fig:examples} shows visibly smoother generated images than real
 test images. Downsampling removes fine lung detail, and pixelwise binary
 cross-entropy with a compact Gaussian latent model can favor smooth outputs.
 The training set is class-imbalanced; this unconditional model cannot select
-pathology. IS and FID-1000 describe only this specific 256-sample experiment,
-not clinical realism or diagnostic performance. Higher resolution and
+pathology. The small-sample IS and FID-1000 do not establish clinical realism
+or diagnostic performance. Higher resolution and
 radiology-specific evaluation would be useful next steps.
 
 \noindent\textbf{Code and reproducibility:}
